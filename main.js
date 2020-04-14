@@ -1,4 +1,5 @@
-const { app, BrowserWindow, ipcMain, net, shell } = require("electron");
+const { app, BrowserWindow, ipcMain, net, shell, dialog } = require("electron");
+const fs = require('fs');
 const path = require("path");
 
 let win;
@@ -66,4 +67,29 @@ ipcMain.on("getPlayerCount", (event, args) => {
     });
   });
   request.end();
+});
+
+ipcMain.on("selectSteamFolder", (event, args) => {
+  const selectedDirectory = dialog.showOpenDialogSync(win, {
+    properties: ['openDirectory']
+  });
+  let games = [];
+  if (selectedDirectory) {
+    let appIdRegEx = /("appid"\s+")(\d+)"$/m;
+    let appNameRegEx = /("name"\s+")(.*)"$/m;
+    fs.readdirSync(selectedDirectory[0]).forEach(file => {
+      if (file.endsWith('.acf')) {
+        let content = fs.readFileSync(selectedDirectory[0] + "/" + file, { encoding: 'utf8' });
+        let appIdMatch = content.match(appIdRegEx);
+        let appNameMatch = content.match(appNameRegEx);
+        
+        games.push({
+          appId: appIdMatch[2],
+          appName: appNameMatch[2]
+        });
+      }
+    });
+    
+    win.webContents.send("selectSteamFolderResponse", games);
+  }
 });

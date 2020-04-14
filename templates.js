@@ -1,19 +1,20 @@
 let gameHeaderTemplate = `
 <h4 class="mt-2">
-    {{appName}}
     <small>
         <button id="{{appId}}-play" class="btn btn-sm btn-info">
             Play&nbsp;
             <i class="fas fa-gamepad"></i>
         </button>
     </small>
-    <small>
+    <small class="mr-2">
         <button id="{{appId}}-show-details" class="btn btn-sm btn-secondary">
-            <span id="{{appId}}-show-details-text">Show Details</span>&nbsp;
-            <span id="{{appId}}-hide-details-text">Hide Details</span>&nbsp;
+            <span id="{{appId}}-show-details-text">Show Details</span>
+            <span id="{{appId}}-hide-details-text">Hide Details</span>
+            &nbsp;
             <i id="{{appId}}-show-icon" class="fas fa-chevron-circle-left"></i>
         </button>
     </small>
+    {{appName}}
 </h4>`;
 
 let gameDetailsTemplate = `
@@ -26,25 +27,16 @@ let gameDetailsTemplate = `
         <div class="col-md-4 col-sm-6">
             <h5><span id="{{appId}}-player-count"></span> <small class="text-muted">in game</small></h5>
             <div class="icon-spacing">
-                <p class="m-0 p-0">
-                    <i class="fas fa-user" data-toggle="tooltip" data-placement="top"
-                        title="Single Player"></i>&nbsp;
-                    <i class="fas fa-asterisk" data-toggle="tooltip" data-placement="top"
-                        title="Achievements"></i>&nbsp;
-                    <i class="fas fa-cloud" data-toggle="tooltip" data-placement="top"
-                        title="Cloud Saves"></i>&nbsp;
-                    <i class="fas fa-gamepad" data-toggle="tooltip" data-placement="top"
-                        title="Full Controller Support"></i>
+                <p id="{{appId}}-categories" class="m-0 p-0">
                 </p>
             </div>
         </div>
         <div class="col-md-4 text-right">
-            <h5>
-                <i class="fab fa-windows" data-toggle="tooltip" data-placement="top" title="Windows"></i>&nbsp;
-                <i class="fab fa-apple" data-toggle="tooltip" data-placement="top" title="Mac"></i>&nbsp;
-                <i class="fab fa-linux" data-toggle="tooltip" data-placement="top" title="Linux"></i>
+            <h5 id="{{appId}}-platforms">
             </h5>
             <button id="{{appId}}-view" class="btn btn-primary"><i class="fab fa-steam"></i> Store</button>
         </div>
     </div>
 </div>`;
+
+let categoryLineTemplate = `<i class="{{class}}" data-toggle="tooltip" data-placement="top" title="{{title}}"></i>&nbsp;`;

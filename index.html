@@ -18,6 +18,7 @@
 <body class="pt-2">
     <div class="container">
         <h1>Your Steam Games</h1>
+        <p>Select your Steam folder: <input type="file" id="steamFolder" /></p>
         <div id="games-list"></div>
     </div>
     <script>if (typeof module === 'object') { window.module = module; module = undefined; }</script>
@@ -32,78 +33,152 @@
         crossorigin="anonymous"></script>
     <script src="data.js" type="text/javascript"></script>
     <script src="templates.js" type="text/javascript"></script>
+    <script src="index.js" type="text/javascript"></script>
     <script>if (window.module) module = window.module;</script>
     <script type="text/javascript">
         $(function () {
+            // Handle selection of Steam folder
+            $("#steamFolder").click(function (event) {
+                event.preventDefault();
+                window.api.send("selectSteamFolder");
+            });
+
             let appDetailsExpandedSet = new Set();
+
+            // Handle response from selection of Steam folder
+            window.api.receive("selectSteamFolderResponse", (data) => {
+                
+                // Iterate over found games from selected Steam folder to build the games list
+                $.each(data, function (key, value) {
+                    let tempGameHeaderTemplate = gameHeaderTemplate;
+                    tempGameHeaderTemplate = tempGameHeaderTemplate.replace(/{{appName}}/g, value.appName);
+                    tempGameHeaderTemplate = tempGameHeaderTemplate.replace(/{{appId}}/g, value.appId);
+
+                    let tempGameDetailsTemplate = gameDetailsTemplate;
+                    tempGameDetailsTemplate = tempGameDetailsTemplate.replace(/{{appId}}/g, value.appId);
+
+                    $('#games-list').append(tempGameHeaderTemplate);
+                    $('#games-list').append(tempGameDetailsTemplate);
+
+                    // Handle when user clicks to see game details
+                    $(document).on('click', '#' + value.appId + '-show-details', function (event) {
+
+                        // Only try to query data for this if we haven't already
+                        if (!appDetailsExpandedSet.has(value.appId)) {
+                            // get details from Steam Store
+                            window.api.send("getAppStoreDetails", { appId: value.appId });
+
+                            // get player count from Steam Web API?
+                            window.api.send("getPlayerCount", { appId: value.appId });
+
+                            appDetailsExpandedSet.add(value.appId);
+                        }
+
+                        $('#' + value.appId + '-show-details-text').toggle();
+                        $('#' + value.appId + '-hide-details-text').toggle();
+                        $('#' + value.appId + '-details-container').toggle();
+                        $('#' + value.appId + '-show-icon').toggleClass('fa-chevron-circle-down');
+                        $('#' + value.appId + '-show-icon').toggleClass('fa-chevron-circle-left');
+                    });
+
+                    // Handle when user clicks to play game
+                    $(document).on('click', '#' + value.appId + '-play', function (event) {
+                        window.api.send("playGame", { appId: value.appId });
+                    });
+
+                    // Handle when user clicks to see game in store
+                    $(document).on('click', '#' + value.appId + '-view', function (event) {
+                        window.api.send("viewInSteam", { appId: value.appId });
+                    });
+
+                    // Hide details by default
+                    $('#' + value.appId + '-hide-details-text').hide();
+                    $('#' + value.appId + '-details-container').hide();
+                });
+
+                // Load all tooltips
+                $("body").tooltip({
+                    selector: '[data-toggle="tooltip"]'
+                });
+            });
 
             // Handle response from Steam Store details
             window.api.receive("fromMain", (data) => {
                 let appId = Object.keys(data)[0];
                 let appDetails = $('#' + appId + '-details-container');
+
+                // Insert background and capsule images
                 appDetails.html(function (index, html) {
                     html = html.replace(/{{backgroundImageUrl}}/g, data[appId].data.background);
                     html = html.replace(/{{capsuleImageUrl}}/g, `https://steamcdn-a.akamaihd.net/steam/apps/${appId}/capsule_231x87.jpg`);
                     return html;
                 });
+
+                // Insert supported platform icons
+                let platforms = $(`#${appId}-platforms`);
+                if (data[appId].data.platforms.windows) {
+                    platforms.append('<i class="fab fa-windows" data-toggle="tooltip" data-placement="top" title="Windows"></i>&nbsp;');
+                }
+                if (data[appId].data.platforms.mac) {
+                    platforms.append('<i class="fab fa-apple" data-toggle="tooltip" data-placement="top" title="Mac"></i>&nbsp;');
+                }
+                if (data[appId].data.platforms.linux) {
+                    platforms.append('<i class="fab fa-linux" data-toggle="tooltip" data-placement="top" title="Linux"></i>&nbsp;');
+                }
+
+                let categories = $(`#${appId}-categories`);
+
+                // Insert category icons
+                $.each(data[appId].data.categories, function (key, value) {
+                    let tempCategoryLineTemplate = categoryLineTemplate;
+                    tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{title}}', value.description);
+                    if (value.id == 2) {
+                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-user');
+                    } else if (value.id == 1) {
+                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-users');
+                    } else if (value.id == 49) {
+                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-people-arrows');
+                    } else if (value.id == 36) {
+                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-globe');
+                    } else if (value.id == 47) {
+                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-network-wired');
+                    } else if (value.id == 27) {
+                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-project-diagram');
+                    } else if (value.id == 22) {
+                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-asterisk');
+                    } else if (value.id == 23) {
+                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-cloud');
+                    } else if (value.id == 17) {
+                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-edit');
+                    } else if (value.id == 28) {
+                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-gamepad');
+                    } else if (value.id == 29) {
+                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-copy');
+                    } else if (value.id == 30) {
+                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-city');
+                    } else if (value.id == 35) {
+                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-hand-holding-usd');
+                    } else if (value.id == 8) {
+                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-virus-slash');
+                    } else if (value.id == 15) {
+                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-chart-bar');
+                    } else if (value.id == 43) {
+                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-tv');
+                    } else if (value.id == 9) {
+                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-handshake');
+                    } else if (value.id == 40) {
+                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-vr-cardboard');
+                    } else {
+                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-question');
+                    }
+                    categories.append(tempCategoryLineTemplate);
+                });
             });
 
-            // Handle response from player count
+            // Handle response from player count lookup
             window.api.receive("getPlayerCountResponse", (data) => {
                 let playerCount = $(`#${data.appId}-player-count`);
                 playerCount.text(data.response.player_count.toLocaleString('en'));
-            });
-
-            // Build the game details
-            $.each(games, function (key, value) {
-                let tempGameHeaderTemplate = gameHeaderTemplate;
-                tempGameHeaderTemplate = tempGameHeaderTemplate.replace(/{{appName}}/g, value.appName);
-                tempGameHeaderTemplate = tempGameHeaderTemplate.replace(/{{appId}}/g, value.appId);
-
-                let tempGameDetailsTemplate = gameDetailsTemplate;
-                tempGameDetailsTemplate = tempGameDetailsTemplate.replace(/{{appId}}/g, value.appId);
-
-                $('#games-list').append(tempGameHeaderTemplate);
-                $('#games-list').append(tempGameDetailsTemplate);
-
-                // Handle when user clicks to see game details
-                $(document).on('click', '#' + value.appId + '-show-details', function (event) {
-
-                    // Only try to query data for this if we haven't already
-                    if (!appDetailsExpandedSet.has(value.appId)) {
-                        // get details from Steam Store
-                        window.api.send("getAppStoreDetails", { appId: value.appId });
-
-                        // get player count from Steam Web API?
-                        window.api.send("getPlayerCount", { appId: value.appId });
-
-                        appDetailsExpandedSet.add(value.appId);
-                    }
-
-                    $('#' + value.appId + '-show-details-text').toggle();
-                    $('#' + value.appId + '-hide-details-text').toggle();
-                    $('#' + value.appId + '-details-container').toggle();
-                    $('#' + value.appId + '-show-icon').toggleClass('fa-chevron-circle-down');
-                    $('#' + value.appId + '-show-icon').toggleClass('fa-chevron-circle-left');
-                });
-
-                // Handle when user clicks to play game
-                $(document).on('click', '#' + value.appId + '-play', function (event) {
-                    window.api.send("playGame", { appId: value.appId });
-                });
-
-                // Handle when user clicks to see game in store
-                $(document).on('click', '#' + value.appId + '-view', function (event) {
-                    window.api.send("viewInSteam", { appId: value.appId });
-                });
-
-                // Hide details by default
-                $('#' + value.appId + '-hide-details-text').hide();
-                $('#' + value.appId + '-details-container').hide();
-            });
-            
-            $("body").tooltip({
-                selector: '[data-toggle="tooltip"]'
             });
         })
     </script>
