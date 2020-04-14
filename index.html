@@ -20,7 +20,6 @@
         <h1>Your Steam Games</h1>
         <div id="games-list"></div>
     </div>
-    <iframe name="hidden-iframe" style="visibility:hidden;position:absolute;"></iframe>
     <script>if (typeof module === 'object') { window.module = module; module = undefined; }</script>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"
         integrity="sha384-vk5WoKIaW/vJyUAd9n/wmopsmNhiy+L2Z+SBxGYnUkunIxVxAv/UtMOhba/xskxh"
@@ -36,11 +35,26 @@
     <script>if (window.module) module = window.module;</script>
     <script type="text/javascript">
         $(function () {
+            let appDetailsExpandedSet = new Set();
+
+            // Handle response from Steam Store details
             window.api.receive("fromMain", (data) => {
-                console.log(data);
-                console.log(data[Object.keys(data)[0]].data.background);
+                let appId = Object.keys(data)[0];
+                let appDetails = $('#' + appId + '-details-container');
+                appDetails.html(function (index, html) {
+                    html = html.replace(/{{backgroundImageUrl}}/g, data[appId].data.background);
+                    html = html.replace(/{{capsuleImageUrl}}/g, `https://steamcdn-a.akamaihd.net/steam/apps/${appId}/capsule_231x87.jpg`);
+                    return html;
+                });
             });
 
+            // Handle response from player count
+            window.api.receive("getPlayerCountResponse", (data) => {
+                let playerCount = $(`#${data.appId}-player-count`);
+                playerCount.text(data.response.player_count.toLocaleString('en'));
+            });
+
+            // Build the game details
             $.each(games, function (key, value) {
                 let tempGameHeaderTemplate = gameHeaderTemplate;
                 tempGameHeaderTemplate = tempGameHeaderTemplate.replace(/{{appName}}/g, value.appName);
@@ -52,22 +66,45 @@
                 $('#games-list').append(tempGameHeaderTemplate);
                 $('#games-list').append(tempGameDetailsTemplate);
 
-                $('#' + value.appId + '-hide-details-text').hide();
-                $('#' + value.appId + '-details').hide();
+                // Handle when user clicks to see game details
+                $(document).on('click', '#' + value.appId + '-show-details', function (event) {
 
-                $('#' + value.appId + '-show-details').click(function (event) {
+                    // Only try to query data for this if we haven't already
+                    if (!appDetailsExpandedSet.has(value.appId)) {
+                        // get details from Steam Store
+                        window.api.send("getAppStoreDetails", { appId: value.appId });
 
-                    window.api.send("toMain", { appId: value.appId} );
+                        // get player count from Steam Web API?
+                        window.api.send("getPlayerCount", { appId: value.appId });
+
+                        appDetailsExpandedSet.add(value.appId);
+                    }
 
                     $('#' + value.appId + '-show-details-text').toggle();
                     $('#' + value.appId + '-hide-details-text').toggle();
-                    $('#' + value.appId + '-details').toggle();
+                    $('#' + value.appId + '-details-container').toggle();
                     $('#' + value.appId + '-show-icon').toggleClass('fa-chevron-circle-down');
                     $('#' + value.appId + '-show-icon').toggleClass('fa-chevron-circle-left');
                 });
-            });
 
-            $('[data-toggle="tooltip"]').tooltip();
+                // Handle when user clicks to play game
+                $(document).on('click', '#' + value.appId + '-play', function (event) {
+                    window.api.send("playGame", { appId: value.appId });
+                });
+
+                // Handle when user clicks to see game in store
+                $(document).on('click', '#' + value.appId + '-view', function (event) {
+                    window.api.send("viewInSteam", { appId: value.appId });
+                });
+
+                // Hide details by default
+                $('#' + value.appId + '-hide-details-text').hide();
+                $('#' + value.appId + '-details-container').hide();
+            });
+            
+            $("body").tooltip({
+                selector: '[data-toggle="tooltip"]'
+            });
         })
     </script>
 </body>
