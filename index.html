@@ -65,12 +65,8 @@
 
                         // Only try to query data for this if we haven't already
                         if (!appDetailsExpandedSet.has(value.appId)) {
-                            // get details from Steam Store
                             window.api.send("getAppStoreDetails", { appId: value.appId });
-
-                            // get player count from Steam Web API?
                             window.api.send("getPlayerCount", { appId: value.appId });
-
                             appDetailsExpandedSet.add(value.appId);
                         }
 
