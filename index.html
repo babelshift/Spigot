@@ -47,7 +47,7 @@
 
             // Handle response from selection of Steam folder
             window.api.receive("selectSteamFolderResponse", (data) => {
-                
+
                 // Iterate over found games from selected Steam folder to build the games list
                 $.each(data, function (key, value) {
                     let tempGameHeaderTemplate = gameHeaderTemplate;
@@ -136,7 +136,7 @@
                         tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-user');
                     } else if (value.id == 1) {
                         tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-users');
-                    } else if (value.id == 49) {
+                    } else if (value.id == 49 || value.id == 36 || value.id == 37) {
                         tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-people-arrows');
                     } else if (value.id == 36) {
                         tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-globe');
@@ -150,7 +150,7 @@
                         tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-cloud');
                     } else if (value.id == 17) {
                         tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-edit');
-                    } else if (value.id == 28) {
+                    } else if (value.id == 28 || value.id == 18) {
                         tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-gamepad');
                     } else if (value.id == 29) {
                         tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-copy');
@@ -161,13 +161,27 @@
                     } else if (value.id == 8) {
                         tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-virus-slash');
                     } else if (value.id == 15) {
-                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-chart-bar');
+                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-chart-pie');
                     } else if (value.id == 43) {
                         tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-tv');
-                    } else if (value.id == 9) {
+                    } else if (value.id == 9 || value.id == 38 || value.id == 39 || value.id == 48) {
                         tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-handshake');
                     } else if (value.id == 40) {
                         tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-vr-cardboard');
+                    } else if (value.id == 24) {
+                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-user-friends');
+                    } else if (value.id == 41) {
+                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-mobile-alt');
+                    } else if (value.id == 42) {
+                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-tablet-alt');
+                    } else if (value.id == 44) {
+                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-wifi');
+                    } else if (value.id == 25) {
+                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-chart-line');
+                    } else if (value.id == 13) {
+                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-closed-captioning');
+                    } else if (value.id == 14) {
+                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-comment-dots');
                     } else {
                         tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-question');
                     }
