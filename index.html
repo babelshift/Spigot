@@ -31,9 +31,8 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
-    <script src="data.js" type="text/javascript"></script>
-    <script src="templates.js" type="text/javascript"></script>
-    <script src="index.js" type="text/javascript"></script>
+    <script src="js/templates.js" type="text/javascript"></script>
+    <script src="js/index.js" type="text/javascript"></script>
     <script>if (window.module) module = window.module;</script>
     <script type="text/javascript">
         $(function () {
@@ -122,65 +121,13 @@
                     platforms.append('<i class="fab fa-linux" data-toggle="tooltip" data-placement="top" title="Linux"></i>&nbsp;');
                 }
 
-                let categories = $(`#${appId}-categories`);
-
                 // Insert category icons
+                let categories = $(`#${appId}-categories`);
                 $.each(data[appId].data.categories, function (key, value) {
                     let tempCategoryLineTemplate = categoryLineTemplate;
                     tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{title}}', value.description);
-                    if (value.id == 2) {
-                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-user');
-                    } else if (value.id == 1) {
-                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-users');
-                    } else if (value.id == 49 || value.id == 36 || value.id == 37) {
-                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-people-arrows');
-                    } else if (value.id == 36) {
-                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-globe');
-                    } else if (value.id == 47) {
-                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-network-wired');
-                    } else if (value.id == 27) {
-                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-project-diagram');
-                    } else if (value.id == 22) {
-                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-asterisk');
-                    } else if (value.id == 23) {
-                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-cloud');
-                    } else if (value.id == 17) {
-                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-edit');
-                    } else if (value.id == 28 || value.id == 18) {
-                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-gamepad');
-                    } else if (value.id == 29) {
-                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-copy');
-                    } else if (value.id == 30) {
-                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-city');
-                    } else if (value.id == 35) {
-                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-hand-holding-usd');
-                    } else if (value.id == 8) {
-                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-virus-slash');
-                    } else if (value.id == 15) {
-                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-chart-pie');
-                    } else if (value.id == 43) {
-                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-tv');
-                    } else if (value.id == 9 || value.id == 38 || value.id == 39 || value.id == 48) {
-                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-handshake');
-                    } else if (value.id == 40) {
-                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-vr-cardboard');
-                    } else if (value.id == 24) {
-                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-user-friends');
-                    } else if (value.id == 41) {
-                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-mobile-alt');
-                    } else if (value.id == 42) {
-                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-tablet-alt');
-                    } else if (value.id == 44) {
-                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-wifi');
-                    } else if (value.id == 25) {
-                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-chart-line');
-                    } else if (value.id == 13) {
-                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-closed-captioning');
-                    } else if (value.id == 14) {
-                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-comment-dots');
-                    } else {
-                        tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', 'fas fa-question');
-                    }
+                    let categoryIcon = getCategoryIcon(value.id);
+                    tempCategoryLineTemplate = tempCategoryLineTemplate.replace('{{class}}', categoryIcon);
                     categories.append(tempCategoryLineTemplate);
                 });
             });
